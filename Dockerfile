@@ -1,17 +1,18 @@
 # ---- builder ----
-FROM node:22-slim AS builder
+FROM node:lts-slim AS builder
 WORKDIR /app
-COPY package*.json tsconfig.json ./
-RUN npm install
+COPY package*.json pnpm-lock.yaml tsconfig.json ./
+RUN corepack enable && pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 # ---- runner ----
-FROM node:22-slim AS runner
+FROM node:lts-slim AS runner
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm ci --omit=dev
+COPY --from=builder /app/pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --prod --frozen-lockfile
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node", "dist/index.js"]
