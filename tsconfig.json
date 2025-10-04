@@ -11,6 +11,6 @@
 			"@/*": ["./src/*"]
 		},
 		"outDir": "./dist",
-		"types": ["node"],
+		"types": ["node"]
 	}
 }
